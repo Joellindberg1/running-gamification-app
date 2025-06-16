@@ -20,7 +20,21 @@ export default function HomeScreen() {
         onPress={() => navigation.navigate('LogRun')}
         style={{ marginTop: 24 }}
       >
-        Gå till Logga runda
+        Logga runda
+      </Button>
+      <Button
+        mode="outlined"
+        onPress={() => navigation.navigate('Profile')}
+        style={{ marginTop: 16 }}
+      >
+        Profil
+      </Button>
+      <Button
+        mode="outlined"
+        onPress={() => navigation.navigate('Leaderboard')}
+        style={{ marginTop: 16 }} 
+      >
+        Leaderboard
       </Button>
 
     </View>
