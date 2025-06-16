@@ -6,7 +6,14 @@ export type User = {
   name: string;
   level: number;
   xp: number;
+  runHistory?: RunLog[];
 };
+
+export type RunLog = {
+    date: string;
+    distance: number; 
+    xp: number; 
+}
 
 type UserContextType = {
   users: User[];
