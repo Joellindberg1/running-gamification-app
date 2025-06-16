@@ -27,18 +27,17 @@ useEffect(() => {
     const storedUsers = await AsyncStorage.getItem('users');
     const storedActiveId = await AsyncStorage.getItem('activeUserId');
 
-    if (storedUsers) {
-      setUsers(JSON.parse(storedUsers));
+    if (storedUsers && JSON.parse(storedUsers).length > 0) {
+        setUsers(JSON.parse(storedUsers));
     } else {
-      // Skapa 4 standardanvändare
-      const defaultUsers: User[] = [
+    const defaultUsers: User[] = [
         { id: 'kipchoge', name: 'Eliud Kipchoge', level: 1, xp: 0 },
         { id: 'haile', name: 'Haile Gebrselassie', level: 1, xp: 0 },
         { id: 'sifan', name: 'Sifan Hassan', level: 1, xp: 0 },
         { id: 'joel', name: 'Joel Lindberg', level: 1, xp: 0 }
-      ];
-      setUsers(defaultUsers);
-      await AsyncStorage.setItem('users', JSON.stringify(defaultUsers));
+        ];
+        setUsers(defaultUsers);
+        await AsyncStorage.setItem('users', JSON.stringify(defaultUsers));
     }
 
     if (storedActiveId) {
