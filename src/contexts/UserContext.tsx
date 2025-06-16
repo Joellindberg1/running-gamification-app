@@ -22,15 +22,37 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [activeUserId, setActiveUserId] = useState<string | null>(null);
 
   // Ladda från AsyncStorage
-  useEffect(() => {
-    const load = async () => {
-      const storedUsers = await AsyncStorage.getItem('users');
-      const storedActiveId = await AsyncStorage.getItem('activeUserId');
-      if (storedUsers) setUsers(JSON.parse(storedUsers));
-      if (storedActiveId) setActiveUserId(storedActiveId);
-    };
-    load();
-  }, []);
+useEffect(() => {
+  const load = async () => {
+    const storedUsers = await AsyncStorage.getItem('users');
+    const storedActiveId = await AsyncStorage.getItem('activeUserId');
+
+    if (storedUsers) {
+      setUsers(JSON.parse(storedUsers));
+    } else {
+      // Skapa 4 standardanvändare
+      const defaultUsers: User[] = [
+        { id: 'kipchoge', name: 'Eliud Kipchoge', level: 1, xp: 0 },
+        { id: 'haile', name: 'Haile Gebrselassie', level: 1, xp: 0 },
+        { id: 'sifan', name: 'Sifan Hassan', level: 1, xp: 0 },
+        { id: 'joel', name: 'Joel Lindberg', level: 1, xp: 0 }
+      ];
+      setUsers(defaultUsers);
+      await AsyncStorage.setItem('users', JSON.stringify(defaultUsers));
+    }
+
+    if (storedActiveId) {
+      setActiveUserId(storedActiveId);
+    } else {
+      // Välj första användaren som aktiv
+      setActiveUserId('kipchoge');
+      await AsyncStorage.setItem('activeUserId', 'kipchoge');
+    }
+  };
+
+  load();
+}, []);
+
 
   // Spara till AsyncStorage
   useEffect(() => {
