@@ -7,6 +7,8 @@ export type User = {
   level: number;
   xp: number;
   runHistory?: RunLog[];
+  rank?: number;
+  title?: string;
 };
 
 export type RunLog = {
@@ -20,6 +22,7 @@ type UserContextType = {
   activeUserId: string | null;
   setActiveUser: (id: string) => void;
   addUser: (user: User) => void;
+  addRunToUser: (userId: string, run: RunLog) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -75,12 +78,26 @@ useEffect(() => {
     setUsers((prev) => [...prev, user]);
   };
 
+  const addRunToUser = (userId: string, run: RunLog) => {
+  setUsers((prev) =>
+    prev.map((user) =>
+      user.id === userId
+        ? {
+            ...user,
+            xp: user.xp + run.xp,
+            runHistory: [...(user.runHistory || []), run],
+          }
+        : user
+    )
+  );
+};
+
   const setActiveUser = (id: string) => {
     setActiveUserId(id);
   };
 
   return (
-    <UserContext.Provider value={{ users, activeUserId, setActiveUser, addUser }}>
+    <UserContext.Provider value={{ users, activeUserId, setActiveUser, addUser, addRunToUser }}>
       {children}
     </UserContext.Provider>
   );
