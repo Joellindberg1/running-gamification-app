@@ -7,6 +7,10 @@ import {
   getProgressToNextLevel,
   getRemainingXPToNextLevel,
 } from '../services/LevelService';
+import { calculateStreak } from '../services/StreakService';
+import { getMultiplikator } from '../services/XPService';
+
+
 
 export default function ProfileScreen() {
   const { users, activeUserId } = useUserContext();
@@ -24,10 +28,14 @@ export default function ProfileScreen() {
   const progress = getProgressToNextLevel(user.xp);
   const remainingXP = getRemainingXPToNextLevel(user.xp);
 
+
+
   const runHistory = user.runHistory || [];
   const totalDistance = runHistory.reduce((sum, run) => sum + run.distance, 0);
   const longestRun = runHistory.reduce((max, run) => Math.max(max, run.distance), 0);
   const totalRuns = runHistory.length;
+  const streak = calculateStreak(runHistory);
+  const multiplikator = getMultiplikator(streak);
 
   return (
     <View style={styles.container}>
@@ -60,9 +68,11 @@ export default function ProfileScreen() {
 
       <Card style={styles.card}>
         <Card.Content>
-          <Text variant="bodyMedium">Streak: (placeholder)</Text>
+            <Text variant="bodyMedium">Streak: {streak} dagar</Text>
+            <Text variant="bodySmall">Multiplikator: x{multiplikator.toFixed(1)}</Text>
         </Card.Content>
       </Card>
+
     </View>
   );
 }
