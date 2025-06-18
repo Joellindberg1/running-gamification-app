@@ -24,9 +24,11 @@ export default function LogRunScreen() {
     }
 
     if (!activeUser) return;
+    
 
     const streak = calculateStreak(activeUser.runHistory || []);
-    const xp = calculateTotalXP(parsed, streak);
+    const xp = calculateTotalXP(parsed, streak.currentStreak);
+
 
     const run = {
       date: date.toISOString(),
