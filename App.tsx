@@ -1,15 +1,18 @@
-import { Provider as PaperProvider } from 'react-native-paper';
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { PaperProvider } from 'react-native-paper';
 import { UserProvider } from './src/contexts/UserContext';
-import AppNavigator from './src/navigation/AppNavigator';
+import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import RootNavigator from './src/navigation/RootNavigator';
 
 export default function App() {
   return (
     <PaperProvider>
       <UserProvider>
-        <AppNavigator />
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
       </UserProvider>
     </PaperProvider>
   );
 }
-
