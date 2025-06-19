@@ -88,3 +88,7 @@ En mobilapp för att logga löprundor, följa sin utveckling i form av levels oc
 
 ---
 
+## 🤝 Kontakt
+
+Projekt av Joel Lindberg(https://www.linkedin.com/in/joel-lindberg2/)  
+🔗 [LinkedIn-profil](https://www.linkedin.com/in/joel-lindberg2/)
