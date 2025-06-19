@@ -6,38 +6,41 @@ import { useUserContext } from '../contexts/UserContext';
 import { calculateTotalXP } from '../services/XPService';
 import ProfileHeader from '../components/ProfileHeader';
 import { calculateStreak } from '../services/StreakService';
+import { useRunContext } from '../contexts/RunContext';
 
 export default function HistoryScreen() {
   const {
     users,
     activeUserId,
+  } = useUserContext();
+  const {
     removeRunFromUser,
     editRunForUser,
-  } = useUserContext();
+  } = useRunContext();
 
   const user = users.find((u) => u.id === activeUserId);
   if (!user) return <Text>Ingen användare vald.</Text>;
 
-  const runHistory = [...(user.runHistory || [])].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const runHistory = [...(user.runHistory || [])]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editRunId, setEditRunId] = useState<string | null>(null);
   const [distance, setDistance] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const openEditModal = (index: number) => {
-    const run = runHistory[index];
-    setEditIndex(index);
+  const openEditModal = (runId: string) => {
+    const run = runHistory.find(r => r.id === runId);
+    if (!run) return;
+    setEditRunId(runId);
     setDistance(run.distance.toString());
     setDate(new Date(run.date));
     setModalVisible(true);
   };
 
   const saveEdit = () => {
-    if (editIndex === null || !user) return;
+    if (!editRunId || !user) return;
     const parsedDistance = parseFloat(distance.replace(',', '.'));
     const streak = calculateStreak(user.runHistory || []);
     const newXP = calculateTotalXP(parsedDistance, streak.currentStreak);
@@ -46,7 +49,7 @@ export default function HistoryScreen() {
       xp: newXP,
       date: date.toISOString(),
     };
-    editRunForUser(user.id, editIndex, updatedRun);
+    editRunForUser(user.id, editRunId, updatedRun);
     setModalVisible(false);
   };
 
@@ -65,8 +68,8 @@ export default function HistoryScreen() {
       ) : (
         <FlatList
           data={runHistory}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item, index }) => (
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
             <Card style={styles.card}>
               <Card.Content>
                 <Text style={styles.date}>{new Date(item.date).toLocaleDateString()}</Text>
@@ -74,10 +77,10 @@ export default function HistoryScreen() {
                 <Text style={styles.detail}>XP: {item.xp}</Text>
 
                 <View style={styles.actions}>
-                  <Pressable style={styles.editButton} onPress={() => openEditModal(index)}>
+                  <Pressable style={styles.editButton} onPress={() => openEditModal(item.id)}>
                     <Text style={styles.buttonText}>Redigera</Text>
                   </Pressable>
-                  <Pressable style={styles.deleteButton} onPress={() => removeRunFromUser(user.id, index)}>
+                  <Pressable style={styles.deleteButton} onPress={() => removeRunFromUser(user.id, item.id)}>
                     <Text style={styles.buttonText}>Ta bort</Text>
                   </Pressable>
                 </View>

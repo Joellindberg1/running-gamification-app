@@ -1,4 +1,3 @@
-import { RunLog } from '../contexts/UserContext';
 
 export function calculateBaseXP(distance: number): number {
   return distance * 10; // enkel regel: 10 XP per km

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { useUserContext } from '../contexts/UserContext';
+import { useRunContext } from '../contexts/RunContext';
 import { calculateTotalXP } from '../services/XPService';
 import { calculateStreak } from '../services/StreakService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+
 export default function LogRunScreen() {
-  const { users, activeUserId, addRunToUser } = useUserContext();
+  const { users, activeUserId } = useUserContext();
+  const { addRunToUser } = useRunContext();
   const [distance, setDistance] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -18,26 +21,21 @@ export default function LogRunScreen() {
 
   const handleLogRun = () => {
     const parsed = parseFloat(distance.replace(',', '.'));
-    if (isNaN(parsed) || parsed < 1.0) {
+    if (isNaN(parsed) || parsed < 1.0 || !activeUser) {
       setShowError(true);
       return;
     }
 
-    if (!activeUser) return;
-    
-
     const streak = calculateStreak(activeUser.runHistory || []);
     const xp = calculateTotalXP(parsed, streak.currentStreak);
-
 
     const run = {
       date: date.toISOString(),
       distance: parsed,
-      xp,
+      xp
     };
 
     addRunToUser(activeUser.id, run);
-
     setDistance('');
     setShowSuccess(true);
   };
@@ -61,9 +59,9 @@ export default function LogRunScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Text style={styles.label}>Logga löprunda för {activeUser.name}</Text>
-      
+
       <Button mode="outlined" onPress={() => setShowDatePicker(true)} style={styles.input}>
-        Välj datum: {date.toLocaleDateString()}
+        <Text>Välj datum: {date.toLocaleDateString()}</Text>
       </Button>
 
       {showDatePicker && (
