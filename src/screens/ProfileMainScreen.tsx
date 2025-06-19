@@ -2,9 +2,20 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useUserContext } from '../contexts/UserContext';
+import {  NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/RootNavigator';
 import ProfileHeader from '../components/ProfileHeader';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { BottomTabParamList } from '../navigation/BottomTabNavigator';
+import { CompositeScreenProps } from '@react-navigation/native';
 
-export default function ProfileMainScreen({ navigation }: any) {
+
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabParamList, 'Profile'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+export default function ProfileMainScreen({ navigation }: Props) {
   const { users, activeUserId } = useUserContext();
   const user = users.find((u) => u.id === activeUserId);
 

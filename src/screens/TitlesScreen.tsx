@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card } from 'react-native-paper';
-import { RunLog } from '../contexts/RunContext';
+import { RunLog, User } from '../contexts/RunContext';
 import ProfileHeader from '../components/ProfileHeader';
 import { assignTitles, TitleAssignments } from '../services/TitleService';
 import { calculateStreak } from '../services/StreakService';
@@ -79,13 +79,13 @@ function TitleCard({
   goal: string;
   userId: string;
   category: keyof TitleAssignments;
-  users: any[];
+  users: User[];
   titleAssignments: TitleAssignments;
 }) {
   const titleHolderId = titleAssignments[category];
   const titleHolder = users.find(u => u.id === titleHolderId);
   const titleHolderName = titleHolder?.name || '-';
-  const titleHolderValue = getUserCategoryValue(titleHolder, category);
+  const titleHolderValue = titleHolder ? getUserCategoryValue(titleHolder, category): 0;
 
   const sortedUsers = users
     .map(u => ({ id: u.id, value: getUserCategoryValue(u, category) }))
@@ -129,11 +129,11 @@ function TitleCard({
   );
 }
 
-function getUserName(users: any[], id?: string): string {
+function getUserName(users: User[], id?: string): string {
   return users.find(u => u.id === id)?.name || '-';
 }
 
-function getUserCategoryValue(user: any, category: keyof TitleAssignments): number {
+function getUserCategoryValue(user: User, category: keyof TitleAssignments): number {
   const history = user?.runHistory || [];
   switch (category) {
     case 'longestRun':

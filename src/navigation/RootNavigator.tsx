@@ -17,6 +17,7 @@ export type RootStackParamList = {
   UserSwitcher: undefined;
 };
 
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {

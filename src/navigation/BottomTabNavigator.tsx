@@ -14,7 +14,14 @@ import HistoryScreen from '../screens/HistoryScreen';
 import StreakScreen from '../screens/StreakScreen';
 import UserSwitcherScreen from '../screens/UserSwitcherScreen';
 
-const Tab = createBottomTabNavigator();
+export type BottomTabParamList = {
+  Home: undefined;
+  LogRun: undefined;
+  Profile: undefined;
+  Leaderboard: undefined;
+};
+
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 const Stack = createNativeStackNavigator();
 
 function MainTabs() {

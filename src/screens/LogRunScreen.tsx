@@ -40,7 +40,7 @@ export default function LogRunScreen() {
     setShowSuccess(true);
   };
 
-  const onChangeDate = (_: any, selectedDate?: Date) => {
+  const onChangeDate = (_: unknown, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) setDate(selectedDate);
   };

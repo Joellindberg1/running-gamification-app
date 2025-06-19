@@ -4,13 +4,13 @@ import { PaperProvider } from 'react-native-paper';
 import { UserProvider } from './src/contexts/UserContext';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
 import RootNavigator from './src/navigation/RootNavigator';
-import { RunProvider } from './src/contexts/RunContext'; // Lägg till!
+import { RunProvider } from './src/contexts/RunContext';
 
 export default function App() {
   return (
     <PaperProvider>
       <UserProvider>
-        <RunProvider> {/* Lägg till denna */}
+        <RunProvider>
           <NavigationContainer>
             <RootNavigator />
           </NavigationContainer>
