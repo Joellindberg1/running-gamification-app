@@ -11,12 +11,11 @@ En mobilapp för att logga löprundor, följa sin utveckling i form av levels oc
 | **React Native** | Mobilapp för iOS & Android |
 | **TypeScript** | Typning och robust kodstruktur |
 | **React Navigation** | Navigering (stack + tabbar) |
-| **React Context API** | Global state för användare och rundor |
+| **React Context** | Global state för användare och rundor |
 | **AsyncStorage** | Persistent lokal lagring |
 | **react-native-paper** | UI-komponentbibliotek |
 | **uuid** | Unika ID:n för run-entries |
 | **react-native-get-random-values** | UUID-stöd i React Native |
-| **Date-funktioner** | Streak, nivåer, helglogik m.m. |
 
 ---
 
