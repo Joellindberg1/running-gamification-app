@@ -1,3 +1,4 @@
+// Title Service
 import React from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card } from 'react-native-paper';
@@ -7,11 +8,30 @@ import {
   getProgressToNextLevel,
   getRemainingXPToNextLevel,
 } from '../services/LevelService';
+import { calculateStreak } from '../services/StreakService';
+import { assignTitles } from '../services/TitleService';
 
 export default function LeaderboardScreen() {
   const { users, activeUserId } = useUserContext();
 
-  const sorted = [...users].sort((a, b) => {
+  const titles = assignTitles(users);
+  const updatedUsers = users.map(user => {
+    const userTitles = [];
+    if (titles.longestRun === user.id) userTitles.push('Den nyfödde Eliud Kipchoge');
+    if (titles.totalKm === user.id) userTitles.push('Ultra älskarn');
+    if (titles.weekendAvg === user.id) userTitles.push('Helg förstöraren');
+    if (titles.longestStreak === user.id) userTitles.push('Daaaaaviiiiiid GOGGINGS');
+    return {
+      ...user,
+      title: userTitles.length === 0
+        ? undefined
+        : userTitles.length === 1
+        ? userTitles[0] + '!'
+        : userTitles.slice(0, -1).join(', ') + ' & ' + userTitles.slice(-1) + '!',
+    };
+  });
+
+  const sorted = [...updatedUsers].sort((a, b) => {
     const levelA = getLevelFromXP(a.xp);
     const levelB = getLevelFromXP(b.xp);
     if (levelB === levelA) return b.xp - a.xp;
@@ -66,16 +86,19 @@ export default function LeaderboardScreen() {
           const remaining = getRemainingXPToNextLevel(item.xp);
           const nextTarget = item.xp + remaining;
 
-          // Dummydata
-          const streak = 7;
-          const longestStreak = 12;
-          const multiplier = 1.2;
-          const avgRun = 4.5;
-          const longestRun = 9.2;
-          const totalKm = 85;
-          const lastRun = '2025-06-12';
-          const lastRunKm = 6.4;
-          const avgXP = Math.round(item.xp / (item.runHistory?.length || 1));
+          const runHistory = item.runHistory || [];
+          const streakData = calculateStreak(runHistory);
+          const streak = streakData.currentStreak;
+          const longestStreak = streakData.maxStreak;
+          const multiplier = streakData.multiplier;
+
+          const totalKm = runHistory.reduce((sum, run) => sum + run.distance, 0);
+          const longestRun = runHistory.reduce((max, run) => Math.max(max, run.distance), 0);
+          const avgRun = runHistory.length > 0 ? totalKm / runHistory.length : 0;
+          const avgXP = runHistory.length > 0 ? Math.round(item.xp / runHistory.length) : 0;
+          const lastRun = runHistory[runHistory.length - 1];
+          const lastRunDate = lastRun ? new Date(lastRun.date).toLocaleDateString() : '-';
+          const lastRunKm = lastRun ? lastRun.distance : '-';
 
           return (
             <Card style={getCardStyle(item.rank, isActive)}>
@@ -86,6 +109,11 @@ export default function LeaderboardScreen() {
                     <View style={styles.columnRight}><Text variant="bodyMedium">Level {item.level}</Text></View>
                 </View>
 
+                {item.title && (
+                  <Text variant="bodySmall" style={{ marginTop: 2, fontStyle: 'italic' }}>
+                    {item.title}
+                  </Text>
+                )}
 
                 <View style={styles.barBackground}>
                   <View style={[styles.barFill, { width: `${progress}%` }]} />
@@ -93,31 +121,25 @@ export default function LeaderboardScreen() {
                 </View>
                 <Text variant="bodySmall">XP: {item.xp} / {Math.round(nextTarget)}</Text>
 
-                {item.title ? (
-                  <Text variant="bodySmall">Titel: {item.title}</Text>
-                ) : null}
-
                 <View style={styles.row}>
                   <View style={styles.column}>
                     <Text variant="bodySmall">Streak: {streak} dagar</Text>
-                    <Text variant="bodySmall">Medel: {avgRun} km</Text>
-                    <View style={{ marginTop: 4 }}>
-                  </View>
-
+                    <Text variant="bodySmall">Medel: {avgRun.toFixed(1)} km</Text>
                   </View>
 
                   <View style={styles.column}>
                     <Text variant="bodySmall">Längsta streak: {longestStreak}</Text>
-                    <Text variant="bodySmall">Längsta: {longestRun} km</Text>
+                    <Text variant="bodySmall">Längsta: {longestRun.toFixed(1)} km</Text>
                   </View>
 
                   <View style={styles.column}>
                     <Text variant="bodySmall">Multiplier: x{multiplier}</Text>
-                    <Text variant="bodySmall">Totalt: {totalKm} km</Text>
+                    <Text variant="bodySmall">Totalt: {totalKm.toFixed(1)} km</Text>
                   </View>
                 </View>
+
                 <View style={{ marginTop: 4 }}>
-                    <Text variant="bodySmall">Senaste: {lastRun} – {lastRunKm} km</Text>
+                    <Text variant="bodySmall">Senaste: {lastRunDate} – {lastRunKm} km</Text>
                     <Text variant="bodySmall">XP per runda: {avgXP} XP</Text>
                 </View>
 

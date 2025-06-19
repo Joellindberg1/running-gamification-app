@@ -1,58 +1,84 @@
-import { RunLog } from '../contexts/UserContext';
+import { RunLog } from '../contexts/RunContext';
 
-export function calculateStreak(runHistory: RunLog[]) {
+export function calculateStreak(runHistory: RunLog[]): {
+  currentStreak: number;
+  maxStreak: number;
+  multiplier: number;
+} {
   if (!runHistory || runHistory.length === 0) {
     return { currentStreak: 0, maxStreak: 0, multiplier: 1 };
   }
 
-  // Sortera nyast först
-  const sorted = [...runHistory].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  // Konvertera datumen till en Set av YYYY-MM-DD
+  const runDates = new Set(
+    runHistory.map((run) =>
+      new Date(run.date).toISOString().split('T')[0]
+    )
   );
 
   let currentStreak = 0;
   let maxStreak = 0;
-  let streakCounter = 0;
-  let currentDate = new Date();
+  let date = new Date();
+  date.setHours(0, 0, 0, 0);
 
-  for (const run of sorted) {
-    const runDate = new Date(run.date);
-    const diff = Math.floor(
-      (currentDate.setHours(0, 0, 0, 0) - runDate.setHours(0, 0, 0, 0)) /
-        (1000 * 60 * 60 * 24)
-    );
+  // Om ingen runda idag, börja från igår
+  const todayStr = date.toISOString().split('T')[0];
+  if (!runDates.has(todayStr)) {
+    date.setDate(date.getDate() - 1);
+  }
 
-    if (diff === 0 || diff === 1) {
-      streakCounter++;
-      currentDate.setDate(currentDate.getDate() - 1);
-    } else if (diff > 1) {
+  // Räkna bakåt dag för dag
+  while (true) {
+    const dateStr = date.toISOString().split('T')[0];
+    if (runDates.has(dateStr)) {
+      currentStreak++;
+      date.setDate(date.getDate() - 1);
+    } else {
       break;
     }
   }
 
-  currentStreak = streakCounter;
+  // Räkna ut max streak
+  let tempStreak = 0;
+  let streakTracker = new Set(runDates);
+  let tempDate = new Date(Math.max(...[...runDates].map(d => new Date(d).getTime())));
+  tempDate.setHours(0, 0, 0, 0);
 
-  // Beräkna max streak
-  streakCounter = 1;
-  maxStreak = 1;
+  while (streakTracker.size > 0) {
+    const dateStr = tempDate.toISOString().split('T')[0];
+    if (streakTracker.has(dateStr)) {
+      tempStreak++;
+      streakTracker.delete(dateStr);
+      tempDate.setDate(tempDate.getDate() - 1);
+    } else {
+      maxStreak = Math.max(maxStreak, tempStreak);
+      tempStreak = 0;
 
-  for (let i = 1; i < sorted.length; i++) {
-    const prev = new Date(sorted[i - 1].date);
-    const curr = new Date(sorted[i].date);
-    const diff = Math.floor(
-      (prev.setHours(0, 0, 0, 0) - curr.setHours(0, 0, 0, 0)) /
-        (1000 * 60 * 60 * 24)
-    );
-
-    if (diff === 1) {
-      streakCounter++;
-      maxStreak = Math.max(maxStreak, streakCounter);
-    } else if (diff > 1) {
-      streakCounter = 1;
+      // hoppa till nästa senaste datum
+      const timestamps = [...streakTracker].map(d => new Date(d).getTime());
+      if (timestamps.length === 0) break;
+      tempDate = new Date(Math.max(...timestamps));
+      tempDate.setHours(0, 0, 0, 0);
     }
   }
+  maxStreak = Math.max(maxStreak, tempStreak);
 
-  const multiplier = 1 + currentStreak * 0.05;
+  // Multiplikator
+  const multiplierTable = (day: number): number => {
+    if (day >= 270) return 2;
+    if (day >= 240) return 1.9;
+    if (day >= 210) return 1.7;
+    if (day >= 180) return 1.7;
+    if (day >= 150) return 1.6;
+    if (day >= 120) return 1.6;
+    if (day >= 90) return 1.5;
+    if (day >= 60) return 1.4;
+    if (day >= 30) return 1.3;
+    if (day >= 5) return 1.1;
+    return 1;
+  };
+
+  const multiplier = multiplierTable(currentStreak);
 
   return { currentStreak, maxStreak, multiplier };
 }
